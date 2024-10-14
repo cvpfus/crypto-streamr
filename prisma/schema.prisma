@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  username     String        @unique
+  address      String        @unique
+  userImageId  String?
+  alertSetting AlertSetting?
+  history      History[]
+}
+
+model History {
+  id        String   @id @default(cuid())
+  sender    String
+  message   String
+  amount    Decimal
+  ticker    String   @default("APT")
+  isTest    Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AlertSetting {
+  id                  String  @id @default(cuid())
+  url                 String?
+  notificationSoundId String?
+  userId              String  @unique
+  user                User    @relation(fields: [userId], references: [id])
+}
