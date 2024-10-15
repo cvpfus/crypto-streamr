@@ -80,10 +80,10 @@ export function WalletSelector(walletSortingOptions: WalletSortingOptions) {
             if (!isExist) router.push("/register");
             else router.push("/login");
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           toast({
             title: "Error",
-            description: error.message || "Something went wrong",
+            description: error instanceof Error ? error.message : "Something went wrong",
             variant: "destructive",
           });
         }

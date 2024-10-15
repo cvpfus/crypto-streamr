@@ -21,10 +21,10 @@ export default function TriggerButton({ userId }: { userId: string }) {
           description: response.message,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Something went wrong",
+        description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     }

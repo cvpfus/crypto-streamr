@@ -10,7 +10,6 @@ import { auth } from "@/auth";
 import CopyButton from "./copy-button";
 import TriggerButton from "./trigger-button";
 import { getAlertIdByUserId } from "@/lib/data";
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
 export default async function Alert() {

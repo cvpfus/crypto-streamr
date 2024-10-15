@@ -64,8 +64,8 @@ export async function registerWallet(
         },
       },
     });
-  } catch (error: any) {
-    return { message: error.message, isError: true };
+  } catch (error: unknown) {
+    return { message: error instanceof Error ? error.message : "Something went wrong", isError: true };
   }
 
   return {
@@ -106,8 +106,8 @@ export async function redirectToRegisterOrLogin(
 
   try {
     user = await getUserByAddress(address);
-  } catch (error: any) {
-    return { message: error.message || "Something went wrong", isError: true };
+  } catch (error: unknown) {
+    return { message: error instanceof Error ? error.message : "Something went wrong", isError: true };
   }
 
   if (!user) {
@@ -252,9 +252,9 @@ export async function uploadImage(
       isError: false,
       result,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      message: error.message || "Failed to update profile picture",
+      message: error instanceof Error ? error.message : "Failed to update profile picture",
       isError: true,
     };
   }
@@ -294,9 +294,9 @@ export async function updateUsername(
       message: "Username updated successfully",
       isError: false,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
-      message: error.message || "Failed to update username",
+      message: error instanceof Error ? error.message : "Failed to update username",
       isError: true,
     };
   }

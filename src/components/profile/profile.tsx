@@ -73,10 +73,10 @@ export default function Profile({
           description: "Username updated successfully",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Something went wrong",
+        description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     } finally {
@@ -117,10 +117,10 @@ export default function Profile({
         });
 
         setDataUrl(null);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast({
           title: "Error",
-          description: error.message || "Something went wrong",
+          description: error instanceof Error ? error.message : "Something went wrong",
           variant: "destructive",
         });
       } finally {
@@ -157,10 +157,10 @@ export default function Profile({
     try {
       const dataUrl = await generateDataUrl(file);
       setDataUrl(dataUrl);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Something went wrong",
+        description: error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     }
