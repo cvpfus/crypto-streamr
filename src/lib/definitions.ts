@@ -29,3 +29,36 @@ export const formSchema = z
   );
 
 export type TipFormData = z.infer<typeof formSchema>;
+
+const MAX_FILE_SIZE = 512000;
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+
+export const imageSchema = z.object({
+  image: z
+    .any()
+    .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 512 KB.`)
+    .refine(
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+      "Only .jpg, .jpeg, .png and .webp formats are allowed."
+    ),
+});
+
+export const dataUrlSchema = z.string().refine(
+  (dataUrl) => {
+    if (!dataUrl.startsWith("data:image/")) {
+      return false;
+    }
+
+    const format = dataUrl.slice(5, dataUrl.indexOf(";"));
+    return ACCEPTED_IMAGE_TYPES.includes(format);
+  },
+  {
+    message:
+      "Only .jpg, .jpeg, .png and .webp formats are allowed.",
+  }
+);

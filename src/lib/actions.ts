@@ -5,15 +5,20 @@ import { signIn } from "@/auth";
 import db from "./db";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { getUser } from "./data";
-import { formSchema, TipFormData, User } from "./definitions";
+import { getUserByAddress } from "./data";
+import { dataUrlSchema, formSchema, TipFormData, User } from "./definitions";
 import { cookies } from "next/headers";
-import { encrypt } from "./utils";
+import { encrypt, S3 } from "./utils";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { createId } from "@paralleldrive/cuid2";
+import sharp from "sharp";
+import { revalidatePath } from "next/cache";
 
 export interface Message {
   message: string | null;
   isError: boolean;
   isExist?: boolean;
+  result?: User;
 }
 
 export async function registerWallet(
@@ -23,7 +28,10 @@ export async function registerWallet(
   const parsedFormData = z
     .object({
       address: z.string(),
-      username: z.string().min(5),
+      username: z
+        .string()
+        .min(3, { message: "Username must be at least 3 characters" })
+        .max(10, { message: "Username must be at most 10 characters" }),
     })
     .safeParse({
       address: formData.get("address"),
@@ -50,6 +58,10 @@ export async function registerWallet(
       data: {
         address,
         username,
+        userImageUrl: `https://ui-avatars.com/api/?name=${username}&size=120&background=random`,
+        alertSetting: {
+          create: {},
+        },
       },
     });
   } catch (error: any) {
@@ -93,7 +105,7 @@ export async function redirectToRegisterOrLogin(
   let user: User | null = null;
 
   try {
-    user = await getUser(address);
+    user = await getUserByAddress(address);
   } catch (error: any) {
     return { message: error.message || "Something went wrong", isError: true };
   }
@@ -117,24 +129,37 @@ export async function redirectToRegisterOrLogin(
   return { message: "User found", isError: false, isExist: true };
 }
 
-export async function triggerTestNotification(): Promise<Message> {
+export async function triggerTestNotification(
+  userId: string
+): Promise<Message> {
   try {
-    const admin = await db.history.findFirst({
-      where: { isTest: true },
-    });
-
-    if (!admin) {
-      return { message: "Failed to trigger test notification", isError: true };
-    }
-
-    await db.history.update({
+    const userHistory = await db.history.findFirst({
       where: {
-        id: admin?.id,
-      },
-      data: {
-        updatedAt: new Date(),
+        isTest: true,
+        userId,
       },
     });
+
+    if (!userHistory) {
+      await db.history.create({
+        data: {
+          sender: "CryptoStreamr",
+          message: "This is just a test notification.",
+          amount: 100,
+          isTest: true,
+          userId,
+        },
+      });
+    } else {
+      await db.history.update({
+        where: {
+          id: userHistory.id,
+        },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+    }
 
     return { message: "Test notification triggered", isError: false };
   } catch (_error) {
@@ -178,5 +203,101 @@ export async function triggerNotification({
     });
   } catch (_error) {
     return { message: "Failed to trigger notification", isError: true };
+  }
+}
+
+export async function uploadImage(
+  dataUrl: string,
+  userId: string
+): Promise<Message> {
+  const parsedDataUrl = dataUrlSchema.safeParse(dataUrl);
+
+  if (!parsedDataUrl.success) {
+    return { message: "Invalid data URL", isError: true };
+  }
+
+  const imageFormat = dataUrl.slice(5, dataUrl.indexOf(";"));
+
+  const imagePath = `profile-pictures/${createId()}.${
+    imageFormat.split("/")[1]
+  }`;
+
+  const originalBuffer = Buffer.from(dataUrl.split(",")[1], "base64");
+
+  const resizedBuffer = await sharp(originalBuffer).resize(150, 150).toBuffer();
+
+  try {
+    await S3.send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: imagePath,
+        Body: resizedBuffer,
+        ContentType: imageFormat,
+      })
+    );
+
+    const result = await db.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        userImageUrl: `https://storage2.cvpfus.xyz/${imagePath}`,
+      },
+    });
+
+    revalidatePath("/settings");
+
+    return {
+      message: "Profile picture updated successfully",
+      isError: false,
+      result,
+    };
+  } catch (error: any) {
+    return {
+      message: error.message || "Failed to update profile picture",
+      isError: true,
+    };
+  }
+}
+
+export async function updateUsername(
+  username: string,
+  userId: string
+): Promise<Message> {
+  try {
+    const parsedUsername = z
+      .string()
+      .min(3, { message: "Username must be at least 3 characters" })
+      .max(10, { message: "Username must be at most 10 characters" })
+      .safeParse(username);
+
+    if (!parsedUsername.success) {
+      return { message: parsedUsername.error.message, isError: true };
+    }
+
+    const user = await db.user.findUnique({
+      where: {
+        username,
+      },
+    });
+
+    if (user) {
+      return { message: "Username already exists", isError: true };
+    }
+
+    await db.user.update({
+      where: { id: userId },
+      data: { username },
+    });
+
+    return {
+      message: "Username updated successfully",
+      isError: false,
+    };
+  } catch (error: any) {
+    return {
+      message: error.message || "Failed to update username",
+      isError: true,
+    };
   }
 }

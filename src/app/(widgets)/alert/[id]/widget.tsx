@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { History } from "@prisma/client";
 import { RealtimePostgresChangesPayload } from "@supabase/realtime-js";
 import { Decimal } from "@prisma/client/runtime/library";
+import useSound from "use-sound";
+import LetterPullup from "@/components/ui/letter-pullup";
+import { BackgroundGradient } from "@/components/ui/background-gradient";
 
 interface Message {
   sender: string;
@@ -13,9 +16,11 @@ interface Message {
   ticker: string;
 }
 
-export default function Widget() {
+export default function Widget({ userId }: { userId: string }) {
   const [messageQueue, setMessageQueue] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState<Message | null>(null);
+
+  const [play] = useSound("/sound/kaching.mp3");
 
   useEffect(() => {
     const supabase = createClient();
@@ -23,7 +28,7 @@ export default function Widget() {
     const handleNewHistory = (
       payload: RealtimePostgresChangesPayload<History>
     ) => {
-      if ("message" in payload.new) {
+      if ("message" in payload.new && payload.new.userId === userId) {
         const message = {
           sender: payload.new.sender,
           message: payload.new.message,
@@ -35,13 +40,14 @@ export default function Widget() {
     };
 
     const channel = supabase
-      .channel("history")
+      .channel(`history-${userId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "History",
+          filter: `userId=eq.${userId}`,
         },
         handleNewHistory
       )
@@ -55,6 +61,7 @@ export default function Widget() {
   useEffect(() => {
     if (currentMessage === null && messageQueue.length > 0) {
       setCurrentMessage(messageQueue[0]);
+      play({ forceSoundEnabled: true });
 
       setTimeout(() => {
         setCurrentMessage(null);
@@ -65,15 +72,15 @@ export default function Widget() {
 
   return (
     <div>
-      Widget
       {currentMessage && (
-        <>
-          <div>
-            {currentMessage.sender} has tipped{" "}
-            {currentMessage.amount.toString()} {currentMessage.ticker}
-          </div>
-          <div>{currentMessage.message}</div>
-        </>
+        <BackgroundGradient className="w-full min-h-[300px] flex flex-col items-center rounded-[22px] bg-zinc-900 text-white text-3xl py-4 text-center">
+          <LetterPullup
+            className="text-xl text-white"
+            words={`${currentMessage.sender} tipped ${currentMessage.amount} ${currentMessage.ticker}`}
+            delay={0.02}
+          />
+          <div className="mt-12 px-4 pb-4">{currentMessage.message}</div>
+        </BackgroundGradient>
       )}
     </div>
   );

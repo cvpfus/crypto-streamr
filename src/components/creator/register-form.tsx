@@ -48,7 +48,8 @@ export default function RegisterForm() {
           name="username"
           autoComplete="off"
           required
-          minLength={5}
+          minLength={3}
+          maxLength={10}
           className="max-w-[160px]"
         />
         <Button className="flex gap-2 w-28" disabled={isPending}>

@@ -1,3 +1,4 @@
+import SessionWrapper from "@/providers/session-wrapper";
 import { Toaster } from "../components/ui/toaster";
 import WalletProvider from "../components/wallet-provider";
 import "./globals.css";
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Toaster />
-        <WalletProvider>{children}</WalletProvider>
+        <SessionWrapper>
+          <WalletProvider>{children}</WalletProvider>
+        </SessionWrapper>
       </body>
     </html>
   );

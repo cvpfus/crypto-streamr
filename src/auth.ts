@@ -5,12 +5,16 @@ import { Ed25519PublicKey, Ed25519Signature } from "@aptos-labs/ts-sdk";
 import { decrypt } from "./lib/utils";
 import db from "./lib/db";
 
-export const { auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/login",
   },
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
+      if (trigger === "update" && session) {
+        token = { ...token, ...session.user };
+      }
+
       return { ...token, ...user };
     },
     session({ session, token }) {
@@ -43,15 +47,16 @@ export const { auth, signIn, signOut } = NextAuth({
       }
 
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
+      const isOnHistory = nextUrl.pathname.startsWith("/history");
       const isOnSettings = nextUrl.pathname.startsWith("/settings");
 
-      if (isOnDashboard || isOnSettings) {
+      if (isOnDashboard || isOnHistory || isOnSettings) {
         if (isLoggedIn) return true;
         return false;
       }
 
       if (isLoggedIn) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
+        return false;
       }
 
       return true;
@@ -85,6 +90,8 @@ export const { auth, signIn, signOut } = NextAuth({
           const user = await db.user.findUnique({
             where: { address },
           });
+
+          console.log("user", user);
 
           return user;
         }

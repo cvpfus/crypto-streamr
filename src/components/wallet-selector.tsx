@@ -45,6 +45,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { redirectToRegisterOrLogin } from "@/lib/actions";
 import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export function WalletSelector(walletSortingOptions: WalletSortingOptions) {
   const { account, connected, disconnect, wallet } = useWallet();
@@ -55,11 +56,13 @@ export function WalletSelector(walletSortingOptions: WalletSortingOptions) {
 
   const pathname = usePathname();
 
+  const { status } = useSession();
+
   useEffect(() => {
     const checkWallet = async () => {
       if (pathname.includes("/tip")) return;
 
-      if (account?.address) {
+      if (account?.address && status === "unauthenticated") {
         try {
           const { message, isError, isExist } = await redirectToRegisterOrLogin(
             account?.address

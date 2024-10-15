@@ -1,11 +1,25 @@
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { signOut } from "../auth";
+import { auth, signOut } from "../auth";
+import Image from "next/image";
+import { getUserImageUrl } from "@/lib/data";
 
-export default function SideNav() {
+export default async function SideNav() {
+  const session = await auth();
+  const username = session?.user?.username;
+
+  const userImageUrl = await getUserImageUrl(username);
+
   return (
     <div className="w-64 border shadow-xl rounded-r-xl flex flex-col items-center gap-4">
-      <div className="rounded-full size-20 bg-gray-100 mt-4"></div>
+      <Image
+        src={userImageUrl}
+        alt="avatar"
+        width={80}
+        height={80}
+        className="size-20 rounded-full mt-4"
+      />
+      <div>{username}</div>
       <Link href="/dashboard">
         <Button className="w-48">Dashboard</Button>
       </Link>
