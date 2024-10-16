@@ -1,7 +1,13 @@
 import { auth } from "@/auth";
 import CopyButton from "@/components/copy-button";
 import History from "@/components/history/history";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Metadata } from "next";
 import { headers } from "next/headers";
@@ -22,6 +28,7 @@ export default async function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4 mt-4">
+      <div className="font-bold block sm:hidden">Dashboard</div>
       <Card>
         <CardHeader>
           <CardTitle>Tip URL</CardTitle>
@@ -32,7 +39,7 @@ export default async function Dashboard() {
           <CopyButton text={`${baseUrl}/tip/${username}`} />
         </CardContent>
       </Card>
-      <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Total Tips Received</CardTitle>

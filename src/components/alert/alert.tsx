@@ -36,10 +36,12 @@ export default async function Alert() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row gap-2">
             <Input value={`${baseUrl}/alert/${alertId}`} readOnly />
-            <CopyButton text={`${baseUrl}/alert/${alertId}`} />
-            <TriggerButton userId={session?.user?.id} />
+            <div className="flex gap-2">
+              <CopyButton text={`${baseUrl}/alert/${alertId}`} />
+              <TriggerButton userId={session?.user?.id} />
+            </div>
           </div>
         </CardContent>
       </Card>

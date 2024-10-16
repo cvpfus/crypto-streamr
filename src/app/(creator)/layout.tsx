@@ -1,6 +1,7 @@
 import SideNav from "@/components/side-nav";
 import { WalletSelector } from "@/components/wallet-selector";
 import Connect from "./connect";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default async function Layout({
   children,
@@ -14,7 +15,9 @@ export default async function Layout({
         <div className="flex justify-end mt-4 ">
           <WalletSelector />
         </div>
-        <Connect>{children}</Connect>
+        <ScrollArea className="h-screen w-full mt-4">
+          <Connect>{children}</Connect>
+        </ScrollArea>
       </div>
     </div>
   );

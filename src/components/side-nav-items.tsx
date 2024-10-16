@@ -26,11 +26,11 @@ export default function SideNavItems() {
       {NavItems.map((item) => (
         <Link key={item.href} href={item.href}>
           <Button
-            className="w-48 flex items-center justify-start gap-2"
+            className="w-full sm:w-48 flex items-center justify-start gap-2"
             variant={pathname === item.href ? "default" : "secondary"}
           >
             {item.icon}
-            <span>{item.label}</span>
+            <span className="hidden sm:block">{item.label}</span>
           </Button>
         </Link>
       ))}

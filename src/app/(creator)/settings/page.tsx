@@ -22,17 +22,20 @@ export default async function Settings() {
   }
 
   return (
-    <Tabs defaultValue="alert">
-      <TabsList>
-        <TabsTrigger value="alert">Alert</TabsTrigger>
-        <TabsTrigger value="profile">Profile</TabsTrigger>
-      </TabsList>
-      <TabsContent value="alert">
-        <Alert />
-      </TabsContent>
-      <TabsContent value="profile">
-        <Profile userId={userId} imageUrl={imageUrl} />
-      </TabsContent>
-    </Tabs>
+    <div className="mt-4">
+      <div className="font-bold block sm:hidden">Setting</div>
+      <Tabs defaultValue="alert" className="mt-4">
+        <TabsList>
+          <TabsTrigger value="alert">Alert</TabsTrigger>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+        </TabsList>
+        <TabsContent value="alert">
+          <Alert />
+        </TabsContent>
+        <TabsContent value="profile">
+          <Profile userId={userId} imageUrl={imageUrl} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
