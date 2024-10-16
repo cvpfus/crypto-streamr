@@ -89,6 +89,10 @@ export default function TipForm({
 
       if (success) {
         await triggerNotification({ formData, username });
+        toast({
+          title: "Success",
+          description: "Tip sent successfully",
+        });
       } else {
         toast({
           title: "Error",
