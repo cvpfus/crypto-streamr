@@ -1,4 +1,4 @@
-import { getAddressByUsername } from "@/lib/data";
+import { getAddressByUsername, getUserImageUrl } from "@/lib/data";
 import TipForm from "./tip-form";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
@@ -15,8 +15,7 @@ export default async function TipPage({
 }) {
   const address = await getAddressByUsername(params.username);
 
-  const session = await auth();
-  const imageUrl = session?.user?.userImageUrl;
+  const imageUrl = await getUserImageUrl(params.username);
 
   if (!address || params.username === "admin") return notFound();
 
