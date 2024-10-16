@@ -99,7 +99,8 @@ export default function TipForm({
     } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        description:
+          error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     }
@@ -172,7 +173,7 @@ export default function TipForm({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea placeholder="Message" maxLength={255} {...field} />
+                  <Textarea placeholder="Message" maxLength={150} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
