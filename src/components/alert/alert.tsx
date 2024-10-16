@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { auth } from "@/auth";
-import CopyButton from "./copy-button";
+import CopyButton from "../copy-button";
 import TriggerButton from "./trigger-button";
 import { getAlertIdByUserId } from "@/lib/data";
 import { headers } from "next/headers";

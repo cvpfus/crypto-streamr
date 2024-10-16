@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "@/hooks/use-toast";
-import { Button } from "../ui/button";
+import { Button } from "./ui/button";
 
 export default function CopyButton({ text }: { text: string }) {
   const handleCopy = async () => {

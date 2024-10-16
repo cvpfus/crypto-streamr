@@ -1,14 +1,37 @@
+import { auth } from "@/auth";
+import CopyButton from "@/components/copy-button";
 import History from "@/components/history/history";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Metadata } from "next";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const session = await auth();
+
+  const headersList = headers();
+  const host = headersList.get("host");
+  const protocol = host?.includes("localhost") ? "http" : "https";
+  const baseUrl = `${protocol}://${host}`;
+
+  const username = session?.user?.username;
+
   return (
     <div className="flex flex-col gap-4 mt-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Tip URL</CardTitle>
+          <CardDescription>Use this URL to receive tips</CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center gap-2">
+          <Input readOnly value={`${baseUrl}/tip/${username}`} />
+          <CopyButton text={`${baseUrl}/tip/${username}`} />
+        </CardContent>
+      </Card>
       <div className="flex gap-4">
         <Card className="w-full">
           <CardHeader>
