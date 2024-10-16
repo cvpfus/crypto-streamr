@@ -1,8 +1,10 @@
-import Link from "next/link";
-import { Button } from "./ui/button";
+
 import { auth, signOut } from "../auth";
 import Image from "next/image";
 import { getUserImageUrl } from "@/lib/data";
+import { Button } from "./ui/button";
+import SideNavItems from "./side-nav-items";
+
 
 export default async function SideNav() {
   const session = await auth();
@@ -20,12 +22,7 @@ export default async function SideNav() {
         className="size-20 rounded-full mt-4"
       />
       <div>{username}</div>
-      <Link href="/dashboard">
-        <Button className="w-48">Dashboard</Button>
-      </Link>
-      <Link href="/settings">
-        <Button className="w-48">Settings</Button>
-      </Link>
+      <SideNavItems/>
       <div className="grow" />
       <form
         action={async () => {
@@ -33,7 +30,7 @@ export default async function SideNav() {
           await signOut({ redirectTo: "/login" });
         }}
       >
-        <Button className="w-48 mb-4">Log out</Button>
+        {username && <Button className="w-48 mb-4">Log out</Button>}
       </form>
     </div>
   );
