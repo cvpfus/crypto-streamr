@@ -1,7 +1,6 @@
 import { getAddressByUsername, getUserImageUrl } from "@/lib/data";
 import TipForm from "./tip-form";
 import { notFound } from "next/navigation";
-import { auth } from "@/auth";
 import Image from "next/image";
 
 export const metadata = {
